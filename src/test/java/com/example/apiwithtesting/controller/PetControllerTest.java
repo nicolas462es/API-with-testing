@@ -4,16 +4,16 @@ import com.example.apiwithtesting.dto.PetEntityDTO;
 import com.example.apiwithtesting.entity.BreedEntity;
 import com.example.apiwithtesting.entity.PetEntity;
 import com.example.apiwithtesting.service.PetService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -28,18 +28,19 @@ import java.util.stream.Collectors;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.reset;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(PetController.class)
 class PetControllerTest {
 
-    @Mock
+    @MockBean
     PetService petService;
 
-    @InjectMocks
-    PetController petController;
-
+    //SuppressWarning for IntelliJ Inspection Issue
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @Autowired
     MockMvc mockMvc;
     PetEntityDTO petEntityDTO;
 
@@ -53,7 +54,11 @@ class PetControllerTest {
                 .breedIdBreed( new BreedEntity(1, "p"))
                 .foodBag( new ArrayList<>())
                 .build();
-        mockMvc = MockMvcBuilders.standaloneSetup(petController).build();
+    }
+
+    @AfterEach
+    void tearDown() {
+        reset(petService);
     }
 
     @Test
